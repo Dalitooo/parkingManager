@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: Parking Lot API
+  version: 1.0.0
+  description: API for managing a parking lot
+servers:
+  - url: http://localhost:3000
+paths:
+  /park:
+    post:
+      summary: Park a vehicle
+      description: 
+        Given a vehicle, find the first available slot, park the vehicle, and return the ticket.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - Car
+                    - Bike
+                    - Truck
+              example:
+                type: Car
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ticket:
+                    $ref: '#/components/schemas/Ticket'
+  /leave/{ticketId}:
+    delete:
+      summary: Unpark a vehicle
+      description: Unparks a vehicle given the ticket ID.
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          description: The ID of the ticket to unpark the vehicle.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Successful operation
+        '404':
+          description: Ticket not found
+  /available-slots/{vehicleType}:
+    get:
+      summary: Get the number of available slots per floor for a specific vehicle type
+      description: Display the number of free slots per floor for a specific vehicle type.
+      parameters:
+        - name: vehicleType
+          in: path
+          required: true
+          description: The type of the vehicle (Car, Bike, Truck).
+          schema:
+            type: string
+            enum:
+              - Car
+              - Bike
+              - Truck
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: integer
+                  description: Number of available slots on each floor
+components:
+  schemas:
+    Ticket:
+      type: object
+      properties:
+        slot:
+          $ref: '#/components/schemas/Slot'
+        vehicle:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [Car, Bike, Truck]
+          example:
+            type: Car
+        id:
+          type: string
+          format: uuid
+          example: 6d52db8b
+    Slot:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [Car, Bike, Truck]
+        floorNumber:
+          type: integer
+        slotNumber:
+          type: integer
+        vehicle:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [Car, Bike, Truck]
+          example:
+            type: Car
+
